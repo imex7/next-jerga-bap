@@ -1,152 +1,21 @@
-import React from 'react'
-import axios from 'axios'
 import PortfolioCard from '@/components/portfolios/PortfolioCard'
 import Link from 'next/link'
+import {
+  useGetPortfolios,
+  useUpdatePortfolio,
+  useDeletePortfolio,
+  useCreatePortfolio,
+} from '@/apollo/actions'
+import withApollo from '@/hoc/withApollo'
+import { getDataFromTree } from '@apollo/client/react/ssr'
 
-const fetchPortfolios = () => {
-  const query = `query Portfolios {
-			portfolios {
-				_id,
-				title,
-				company,
-				comapanyWebsite,
-				jobTitle,
-				description,
-				startDate,
-				endDate
-			}
-		}`
-  return axios
-    .post(`http://localhost:7005/graphql`, { query })
-    .then(({ data }) => {
-      return data.data
-    })
-    .then((res) => {
-      // debugger
-      return res.portfolios
-    })
-}
+const Portfolios = () => {
+  const { data } = useGetPortfolios()
+  const [updatePortfolio] = useUpdatePortfolio()
+  const [deletePortfolio] = useDeletePortfolio()
+  const [createPortfolio] = useCreatePortfolio()
 
-const createPortfolio = () => {
-  const query = `mutation createPortfolio {
-			createPortfolio(portfolio: {
-				title: "My favourite work",
-				company: "SibLine",
-				comapanyWebsite: "www.sibline.ru",
-				jobTitle: "Gruzchik",
-				description: "Boo",
-				startDate: "00/00/1989",
-				endDate: "00/00/1999"
-			}) {
-				_id,
-				title,
-				company,
-				comapanyWebsite,
-				jobTitle,
-				description,
-				startDate,
-				endDate
-			}
-		}`
-  return axios
-    .post(`http://localhost:7005/graphql`, { query })
-    .then(({ data }) => {
-      return data.data
-    })
-    .then((res) => {
-      // debugger
-      return res.createPortfolio
-    })
-}
-
-const updatePortfolio = (id) => {
-  const query = `mutation updatePortfolio {
-			updatePortfolio(id: "${id}", portfolio: {
-				title: "[UPDATED]",
-				company: "SibLine",
-				comapanyWebsite: "www.sibline.ru",
-				jobTitle: "Gruzchik",
-				description: "Boo",
-				startDate: "00/00/1989",
-				endDate: "00/00/1999"
-			}) {
-				_id,
-				title,
-				company,
-				comapanyWebsite,
-				jobTitle,
-				description,
-				startDate,
-				endDate
-			}
-		}`
-  return axios
-    .post(`http://localhost:7005/graphql`, { query })
-    .then(({ data }) => {
-      return data.data
-    })
-    .then((res) => {
-      // debugger
-      return res.updatePortfolio
-    })
-}
-
-const deletePortfolio = (id) => {
-  const query = `mutation deletePortfolio {
-			deletePortfolio(id: "${id}") {
-				_id,
-				title,
-				company,
-				comapanyWebsite,
-				jobTitle,
-				description,
-				startDate,
-				endDate
-			}
-		}`
-  return axios
-    .post(`http://localhost:7005/graphql`, { query })
-    .then(({ data }) => {
-      return data.data
-    })
-    .then((res) => {
-      // debugger
-      return res.deletePortfolio
-    })
-}
-
-const Portfolios = ({ portfolios: fromProps }) => {
-  const [portfolios, setPortfolios] = React.useState(fromProps)
-
-  const createPortfolioHandler = async () => {
-    const newPortfolio = await createPortfolio()
-    setPortfolios((prev) => {
-      return [newPortfolio, ...prev]
-    })
-  }
-
-  const updatePortfolioHandler = async (id) => {
-    const newPortfolio = await updatePortfolio(id)
-    setPortfolios((prev) => {
-      const arr = prev.map((el) => {
-        if (el._id === id) {
-          el = newPortfolio
-          return el
-        } else {
-          return el
-        }
-      })
-      return [...arr]
-    })
-  }
-
-  const deletePortfolioHandler = async (id) => {
-    const newPortfolios = await deletePortfolio(id)
-    setPortfolios((prev) => {
-      return [...newPortfolios]
-    })
-  }
-
+  const portfolios = (data && data.portfolios) || []
   return (
     <>
       <section className='section-title'>
@@ -155,7 +24,7 @@ const Portfolios = ({ portfolios: fromProps }) => {
             <h1>Portfolios</h1>
           </div>
           <button
-            onClick={createPortfolioHandler}
+            onClick={createPortfolio}
             className='btn btn-primary'
           >
             Create Portfolio
@@ -179,7 +48,7 @@ const Portfolios = ({ portfolios: fromProps }) => {
                   <div className='btn-group d-flex justify-content-center'>
                     <button
                       onClick={() => {
-                        updatePortfolioHandler(el._id)
+                        updatePortfolio({ variables: { id: el._id } })
                       }}
                       className='btn btn-sm btn-secondary mb-3'
                     >
@@ -187,7 +56,7 @@ const Portfolios = ({ portfolios: fromProps }) => {
                     </button>
                     <button
                       onClick={() => {
-                        deletePortfolioHandler(el._id)
+                        deletePortfolio({ variables: { id: el._id } })
                       }}
                       className='btn btn-sm btn-warning mb-3'
                     >
@@ -203,18 +72,4 @@ const Portfolios = ({ portfolios: fromProps }) => {
   )
 }
 
-Portfolios.getInitialProps = async () => {
-  const portfolios = await fetchPortfolios()
-  return { portfolios }
-}
-
-// export const getStaticProps = async () => {
-// 	const portfolios = await fetchPortfolios()
-// 	return {
-// 		props: {
-// 			portfolios
-// 		}
-// 	}
-// }
-
-export default Portfolios
+export default withApollo(Portfolios, { getDataFromTree })
