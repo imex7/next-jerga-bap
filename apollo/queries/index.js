@@ -40,8 +40,8 @@ export const CREATE_PORTFOLIO = gql`
         comapanyWebsite: "www.tranzit24.ru"
         jobTitle: "Gruzchik"
         description: "Boo"
-        startDate: "01/07/2007"
-        endDate: "7/07/2007"
+        startDate: "01/07/2007/20:00"
+        endDate: "7/07/2007/13:35"
       }
     ) {
       _id
@@ -66,8 +66,8 @@ export const UPDATE_PORTFOLIO = gql`
         comapanyWebsite: "www.sibline.ru"
         jobTitle: "Gruzchik"
         description: "Boo"
-        startDate: "00/00/1989"
-        endDate: "00/00/1999"
+        startDate: "01/01/1989"
+        endDate: "01/01/1999"
       }
     ) {
       _id
@@ -84,15 +84,6 @@ export const UPDATE_PORTFOLIO = gql`
 
 export const DELETE_PORTFOLIO = gql`
   mutation deletePortfolio($id: ID) {
-    deletePortfolio(id: $id) {
-      _id
-      title
-      company
-      comapanyWebsite
-      jobTitle
-      description
-      startDate
-      endDate
-    }
+    deletePortfolio(id: $id)
   }
 `

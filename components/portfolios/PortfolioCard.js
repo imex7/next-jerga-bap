@@ -1,4 +1,6 @@
 const PortfolioCard = ({ portfolio }) => {
+  const sd = new Date(+portfolio.startDate)
+  const ed = new Date(+portfolio.endDate)
   return (
     <div className='card subtle-shadow no-border'>
       <div className='card-body'>
@@ -6,13 +8,17 @@ const PortfolioCard = ({ portfolio }) => {
           {portfolio.title}
         </h3>
         <h6 className='card-subtitle mb-2 text-muted'>
-          {portfolio.jobTitle}
+          {portfolio.jobTitle} ({portfolio.company})
         </h6>
         <p className='card-text fs-2'>{portfolio.description}</p>
       </div>
       <div className='card-footer no-border'>
         <small className='text-muted'>
-          {portfolio.startDate} — {portfolio.endDate}
+          Started: {sd.toLocaleDateString('ru-RU')},{' '}
+          {sd.toLocaleTimeString('ru-RU')}
+          <br />
+          Finished: {ed.toLocaleDateString('ru-RU')},{' '}
+          {ed.toLocaleTimeString('ru-RU')}
         </small>
       </div>
     </div>
